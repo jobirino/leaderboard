@@ -1,8 +1,4 @@
 
-git add app/leaderboard/page.tsx
-git commit -m "Deploy test comment"
-git push
-
 
 "use client";
 
