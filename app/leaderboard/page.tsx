@@ -25,7 +25,9 @@ export default function LeaderboardPage() {
       if (!res.ok) return;
 
       const json = await res.json();
-      const { leaderboard, prizes, endAt } = json.data;
+      const { leaderboard, prizes: rawPrizes, endAt } = json.data;
+
+      const prizes: { place: number; title: string }[] = rawPrizes;
 
       const sorted = [...leaderboard]
         .sort((a, b) => a.place - b.place)
@@ -34,7 +36,7 @@ export default function LeaderboardPage() {
           rank: p.place,
           name: maskUsername(p.nickname),
           points: Number(p.points).toLocaleString(),
-          prize: prizes.find((x: any) => x.place === p.place)?.title ?? "-"
+          prize: prizes.find(pz => pz.place === p.place)?.title ?? "-"
         }));
 
       setPodium(sorted.slice(0, 3));
