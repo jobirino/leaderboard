@@ -2,96 +2,104 @@
 
 import { useEffect, useState } from "react";
 
-type Leader = {
-  place: number;
-  nickname: string;
-  points: number;
+type Row = {
+  rank: number;
+  name: string;
+  points: string;
+  prize: string;
 };
 
-type Prize = {
-  place: number;
-  title: string;
-};
+function maskUsername(name: string): string {
+  if (!name) return "";
+  if (name.length <= 2) return name[0] + "*";
+  return (
+    name[0] +
+    "*".repeat(name.length - 2) +
+    name[name.length - 1]
+  );
+}
 
-export default function LeaderboardPage() {
-  const [leaders, setLeaders] = useState<Leader[]>([]);
-  const [prizes, setPrizes] = useState<Prize[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function Page() {
+  const [rows, setRows] = useState<Row[]>([]);
 
   useEffect(() => {
+    let interval: NodeJS.Timeout;
+
     async function load() {
       try {
         const res = await fetch("/api/leaderboard", {
           cache: "no-store",
         });
-
         if (!res.ok) return;
 
         const json = await res.json();
 
-        const top10: Leader[] = json.data.leaderboard
-          .sort((a: Leader, b: Leader) => a.place - b.place)
-          .slice(0, 10);
+        const leaderboard = json.data.leaderboard;
+        const prizes = json.data.prizes;
 
-        setLeaders(top10);
-        setPrizes(json.data.prizes);
-        setLoading(false);
-      } catch (e) {
-        console.error(e);
+        const data: Row[] = leaderboard
+          .sort((a: any, b: any) => a.place - b.place)
+          .slice(0, 10)
+          .map((p: any) => ({
+            rank: p.place,
+            name: maskUsername(p.nickname),
+            points: Number(p.points).toLocaleString(),
+            prize: prizes[p.place - 1]?.title ?? "-",
+          }));
+
+        setRows(data);
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    load();
-    const interval = setInterval(load, 30000);
+    load(); // initial load
+    interval = setInterval(load, 30_000); // refresh every 30s
+
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        Loading leaderboard…
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-black text-white p-10">
-      <h1 className="text-4xl font-bold mb-8">Bi-Weekly Points Leaderboard</h1>
+    <div style={{ padding: 40 }}>
+      <h1 style={{ marginBottom: 6 }}>
+        🏆 Bi-Weekly Points Leaderboard
+      </h1>
+      <p style={{ opacity: 0.7, marginBottom: 20 }}>
+        Updates automatically every 30 seconds
+      </p>
 
-      <table className="w-full border border-neutral-800 rounded-lg overflow-hidden">
-        <thead className="bg-neutral-900 text-neutral-400">
+      <table width="100%" cellPadding={10}>
+        <thead>
           <tr>
-            <th className="p-4 text-left">Rank</th>
-            <th className="p-4 text-left">Player</th>
-            <th className="p-4 text-left">Points</th>
-            <th className="p-4 text-left">Prize</th>
+            <th align="left">Rank</th>
+            <th align="left">Player</th>
+            <th align="right">Points</th>
+            <th align="right">Prize</th>
           </tr>
         </thead>
 
         <tbody>
-          {leaders.map((p) => (
+          {rows.map((row) => (
             <tr
-              key={p.place}
-              className="border-t border-neutral-800 hover:bg-neutral-900 transition"
+              key={row.rank}
+              style={{
+                fontWeight: row.rank <= 3 ? "bold" : "normal",
+                color:
+                  row.rank === 1
+                    ? "#FFD700"
+                    : row.rank <= 3
+                    ? "#C0C0C0"
+                    : "inherit",
+              }}
             >
-              <td className="p-4 font-semibold">#{p.place}</td>
-              <td className="p-4">{maskUsername(p.nickname)}</td>
-              <td className="p-4 font-mono">
-                {p.points.toLocaleString()}
-              </td>
-              <td className="p-4 text-yellow-400">
-                {prizes.find((x) => x.place === p.place)?.title ?? "-"}
-              </td>
+              <td>#{row.rank}</td>
+              <td>{row.name}</td>
+              <td align="right">{row.points}</td>
+              <td align="right">{row.prize}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
   );
-}
-
-function maskUsername(name: string) {
-  if (!name) return "***";
-  if (name.length <= 3) return name[0] + "***";
-  return name.slice(0, 2) + "***" + name.slice(-1);
 }
