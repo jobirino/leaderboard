@@ -1,24 +1,9 @@
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 
-type Leader = {
-  place: number;
-  nickname: string;
-  points: number;
-};
-
-type Prize = {
-  place: number;
-  title: string;
-};
-
 export default function Page() {
-  const [rows, setRows] = useState<
-    { rank: number; name: string; points: string; prize: string }[]
-  >([]);
+  const [rows, setRows] = useState([]);
 
   useEffect(() => {
     async function load() {
@@ -26,8 +11,8 @@ export default function Page() {
       if (!res.ok) return;
 
       const json = await res.json();
-      const leaderboard: Leader[] = json.data.leaderboard;
-      const prizes: Prize[] = json.data.prizes;
+      const leaderboard = json.data.leaderboard;
+      const prizes = json.data.prizes;
 
       const data = leaderboard
         .sort((a, b) => a.place - b.place)
@@ -48,6 +33,7 @@ export default function Page() {
   return (
     <div style={{ padding: 40 }}>
       <h1>Leaderboard</h1>
+
       <table>
         <thead>
           <tr>
@@ -72,7 +58,8 @@ export default function Page() {
   );
 }
 
-function maskUsername(name: string) {
+function maskUsername(name) {
   if (!name) return "***";
+  if (name.length <= 4) return name[0] + "***";
   return name.slice(0, 2) + "***" + name.slice(-1);
 }
