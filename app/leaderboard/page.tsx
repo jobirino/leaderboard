@@ -36,7 +36,7 @@ export default function LeaderboardPage() {
           rank: p.place,
           name: maskUsername(p.nickname),
           points: Number(p.points).toLocaleString(),
-          prize: prizes.find(pz => pz.place === p.place)?.title ?? "-"
+          prize: prizes[p.place - 1]?.title ?? "-"
         }));
 
       setPodium(sorted.slice(0, 3));
