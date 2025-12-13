@@ -31,6 +31,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/leaderboard/page.jsx"  ],
+, "app/leaderboard/page.tsx"  ],
   "exclude": ["node_modules"]
 }
