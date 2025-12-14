@@ -59,47 +59,72 @@ export default function Page() {
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div style={{ padding: 40 }}>
-      <h1 style={{ marginBottom: 6 }}>
+return (
+  <div style={{ minHeight: "100vh", background: "#0b0b0b", padding: 24 }}>
+    <div
+      style={{
+        maxWidth: 900,
+        margin: "0 auto",
+        background: "#111",
+        borderRadius: 12,
+        padding: 24,
+        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+      }}
+    >
+      <h1 style={{ color: "#fff", marginBottom: 4 }}>
         🏆 Bi-Weekly Points Leaderboard
       </h1>
-      <p style={{ opacity: 0.7, marginBottom: 20 }}>
+      <p style={{ color: "#888", marginBottom: 24 }}>
         Updates automatically every 30 seconds
       </p>
 
-      <table width="100%" cellPadding={10}>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr>
-            <th align="left">Rank</th>
-            <th align="left">Player</th>
-            <th align="right">Points</th>
-            <th align="right">Prize</th>
+          <tr style={{ color: "#aaa", textAlign: "left" }}>
+            <th style={{ paddingBottom: 12 }}>Rank</th>
+            <th style={{ paddingBottom: 12 }}>Player</th>
+            <th style={{ paddingBottom: 12 }}>Points</th>
+            <th style={{ paddingBottom: 12, textAlign: "right" }}>Prize</th>
           </tr>
         </thead>
 
         <tbody>
-          {rows.map((row) => (
-            <tr
-              key={row.rank}
-              style={{
-                fontWeight: row.rank <= 3 ? "bold" : "normal",
-                color:
-                  row.rank === 1
-                    ? "#FFD700"
-                    : row.rank <= 3
-                    ? "#C0C0C0"
-                    : "inherit",
-              }}
-            >
-              <td>#{row.rank}</td>
-              <td>{row.name}</td>
-              <td align="right">{row.points}</td>
-              <td align="right">{row.prize}</td>
-            </tr>
-          ))}
+          {rows.map((row: any) => {
+            const isTop1 = row.rank === 1;
+            const isTop2 = row.rank === 2;
+            const isTop3 = row.rank === 3;
+
+            const highlight =
+              isTop1
+                ? "#ffd700"
+                : isTop2
+                ? "#c0c0c0"
+                : isTop3
+                ? "#cd7f32"
+                : "#fff";
+
+            return (
+              <tr
+                key={row.rank}
+                style={{
+                  borderTop: "1px solid #222",
+                  color: highlight,
+                  fontWeight: isTop1 ? 700 : 400,
+                }}
+              >
+                <td style={{ padding: "12px 0" }}>#{row.rank}</td>
+                <td>{row.name}</td>
+                <td>{row.points}</td>
+                <td style={{ textAlign: "right", color: "#f5c542" }}>
+                  {row.prize}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
-  );
+  </div>
+);
+
 }
