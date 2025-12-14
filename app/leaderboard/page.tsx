@@ -18,6 +18,12 @@ function maskUsername(name: string): string {
     name[name.length - 1]
   );
 }
+function getRowClass(rank: number) {
+  if (rank === 1) return "rank-gold";
+  if (rank === 2) return "rank-silver";
+  if (rank === 3) return "rank-bronze";
+  return "";
+}
 
 export default function Page() {
   const [rows, setRows] = useState<Row[]>([]);
@@ -105,7 +111,7 @@ return (
 
             return (
               <tr
-                key={row.rank}
+                key={row.rank} className={getRowClass(row.rank)} 
                 style={{
                   borderTop: "1px solid #222",
                   color: highlight,
